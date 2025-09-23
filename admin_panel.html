@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luna Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e1e5e9;
+        }
+
+        .card h3 {
+            color: #e91e63;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #ad1457;
+            transform: translateY(-1px);
+        }
+
+        .btn.secondary {
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        .btn.secondary:hover {
+            background: #e4e6ea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+        }
+
+        .companies-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .companies-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .companies-header h3 {
+            color: #333;
+            margin: 0;
+        }
+
+        .company-item {
+            padding: 20px;
+            border-bottom: 1px solid #f0f2f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .company-item:last-child {
+            border-bottom: none;
+        }
+
+        .company-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .company-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #4caf50; }
+        .status-offline { background: #f44336; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #333;
+            margin: 0;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .company-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌸 Luna Admin Panel</h1>
+        <p>Manage companies, monitor performance, and configure Luna's AI capabilities</p>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Stats -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>System Status</h3>
+                <div class="stat-number" id="systemStatus">●</div>
+                <div class="stat-label">Luna AI Status</div>
+                <button class="btn secondary" onclick="checkSystemHealth()">Check Health</button>
+            </div>
+
+            <div class="card">
+                <h3>Active Connections</h3>
+                <div class="stat-number" id="activeConnections">0</div>
+                <div class="stat-label">WebSocket Connections</div>
+                <button class="btn secondary" onclick="refreshConnections()">Refresh</button>
+            </div>
+
+            <div class="card">
+                <h3>Companies</h3>
+                <div class="stat-number" id="totalCompanies">0</div>
+                <div class="stat-label">Total Companies</div>
+                <button class="btn" onclick="openAddCompanyModal()">Add Company</button>
+            </div>
+
+            <div class="card">
+                <h3>Languages</h3>
+                <div class="stat-number">7</div>
+                <div class="stat-label">Supported Languages</div>
+                <button class="btn secondary" onclick="viewLanguages()">View All</button>
+            </div>
+        </div>
+
+        <!-- Companies Management -->
+        <div class="companies-list">
+            <div class="companies-header">
+                <h3>Companies Management</h3>
+            </div>
+            <div id="companiesList">
+                <!-- Companies will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Company Modal -->
+    <div class="modal" id="addCompanyModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <h3>Add New Company</h3>
+            </div>
+            <form id="addCompanyForm">
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Email</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Primary Language</label>
+                    <select id="primaryLanguage">
+                        <option value="english">English</option>
+                        <option value="hrvatski">Hrvatski</option>
+                        <option value="srpski">Srpski</option>
+                        <option value="deutsch">Deutsch</option>
+                        <option value="italiano">Italiano</option>
+                        <option value="français">Français</option>
+                        <option value="español">Español</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn">Create Company</button>
+                    <button type="button" class="btn secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+
+        async function loadDashboard() {
+            await checkSystemHealth();
+            await refreshConnections();
+            await loadCompanies();
+        }
+
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/api/v1/health/detailed');
+                const health = await response.json();
+                
+                const statusElement = document.getElementById('systemStatus');
+                if (health.status === 'healthy') {
+                    statusElement.textContent = '🟢 Online';
+                    statusElement.style.color = '#4caf50';
+                } else {
+                    statusElement.textContent = '🟡 Degraded';
+                    statusElement.style.color = '#ff9800';
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('systemStatus');
+                statusElement.textContent = '🔴 Offline';
+                statusElement.style.color = '#f44336';
+            }
+        }
+
+        async function refreshConnections() {
+            try {
+                const response = await fetch('/api/v1/ws/status');
+                const status = await response.json();
+                document.getElementById('activeConnections').textContent = status.active_connections;
+            } catch (error) {
+                document.getElementById('activeConnections').textContent = 'N/A';
+            }
+        }
+
+        async function loadCompanies() {
+            const companiesList = document.getElementById('companiesList');
+            
+            // Mock companies data (replace with actual API call)
+            const companies = [
+                {
+                    id: 1,
+                    name: "Demo Company",
+                    email: "demo@company.com",
+                    language: "english",
+                    status: "online"
+                }
+            ];
+            
+            document.getElementById('totalCompanies').textContent = companies.length;
+            
+            companiesList.innerHTML = companies.map(company => `
+                <div class="company-item">
+                    <div class="company-info">
+                        <h4>
+                            <span class="status-indicator status-${company.status}"></span>
+                            ${company.name}
+                        </h4>
+                        <p>${company.email} • Primary: ${company.language}</p>
+                    </div>
+                    <div class="company-actions">
+                        <button class="btn secondary" onclick="initializeFAQ(${company.id})">Initialize FAQ</button>
+                        <button class="btn secondary" onclick="viewCompany(${company.id})">View</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddCompanyModal() {
+            document.getElementById('addCompanyModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('addCompanyModal').style.display = 'none';
+        }
+
+        async function initializeFAQ(companyId) {
+            try {
+                const response = await fetch(`/api/v1/init-faq/${companyId}`, {
+                    method: 'POST',
+                    headers: {
+                        'api-key': 'test-key-123'
+                    }
+                });
+                
+                const result = await response.json();
+                alert(`✅ Initialized ${result.faq_count} FAQ entries for company ${companyId}`);
+            } catch (error) {
+                alert('❌ Failed to initialize FAQ data');
+            }
+        }
+
+        function viewLanguages() {
+            alert('Supported Languages:\n• English\n• Hrvatski\n• Srpski\n• Deutsch\n• Italiano\n• Français\n• Español\n• Slovenski\n• Bosanski');
+        }
+
+        function viewCompany(companyId) {
+            alert(`Opening company ${companyId} details...`);
+        }
+
+        // Add company form submission
+        document.getElementById('addCompanyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('companyName').value;
+            const email = document.getElementById('contactEmail').value;
+            const language = document.getElementById('primaryLanguage').value;
+            
+            // Mock company creation (replace with actual API call)
+            alert(`✅ Company "${name}" created successfully!\n\nEmail: ${email}\nLanguage: ${language}`);
+            closeModal();
+            loadCompanies();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('addCompanyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
